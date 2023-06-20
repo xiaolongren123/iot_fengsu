@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/page2"
+        android:icon="@drawable/write"
+        android:title="控制" />
+    <item
+        android:id="@+id/page3"
+        android:icon="@drawable/chart"
+        android:title="数据可视化" />
+    <item
+        android:id="@+id/page4"
+        android:icon="@drawable/list"
+        android:title="历史数据" />
+    <item
+        android:id="@+id/page5"
+        android:icon="@drawable/my"
+        android:title="我的" />
+</menu>

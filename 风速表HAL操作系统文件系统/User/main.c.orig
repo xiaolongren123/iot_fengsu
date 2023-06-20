@@ -1,0 +1,67 @@
+/**
+ ****************************************************************************************************
+ * @file        main.c
+ * @author      正点原子团队(ALIENTEK)
+ * @version     V1.0
+ * @date        2020-04-28
+ * @brief       LVGL V8无操作系统移植 实验
+ * @license     Copyright (c) 2020-2032, 广州市星翼电子科技有限公司
+ ****************************************************************************************************
+ * @attention
+ *
+ * 实验平台:正点原子 STM32F103开发板
+ * 在线视频:www.yuanzige.com
+ * 技术论坛:www.openedv.com
+ * 公司网址:www.alientek.com
+ * 购买地址:openedv.taobao.com
+ *
+ ****************************************************************************************************
+ */
+
+#include "./SYSTEM/sys/sys.h"
+#include "./SYSTEM/usart/usart.h"
+#include "./SYSTEM/delay/delay.h"
+
+#include "./BSP/LCD/lcd.h"
+#include "./BSP/KEY/key.h"
+#include "./BSP/TIMER/btim.h"
+#include "./MALLOC/malloc.h"
+#include "./BSP/SDIO/sdio_sdcard.h"
+#include "lvgl_demo.h"
+
+#include "usbd_core.h"
+#include "usbd_desc.h"
+#include "usbd_msc.h"
+#include "usbd_storage.h"
+
+		USBD_HandleTypeDef USBD_Device;             /* USB Device处理结构体 */
+		extern volatile uint8_t g_usb_state_reg;    /* USB状态 */
+		extern volatile uint8_t g_device_state;     /* USB连接 情况 */
+
+
+int main(void)
+{
+    HAL_Init();                         /* 初始化HAL库 */
+    sys_stm32_clock_init(RCC_PLL_MUL9); /* 设置时钟, 72Mhz */
+    delay_init(72);                     /* 延时初始化 */
+    usart_init(115200);                 /* 串口初始化为115200 */
+    LCD_Init();                         /* 初始化LCD */
+    key_init();                         /* 初始化按键 */
+	
+		
+		sd_init();
+
+	  usbd_port_config(0);    /* USB先断开 */
+    delay_ms(500);
+    usbd_port_config(1);    /* USB再次连接 */
+    delay_ms(500);
+	
+	
+    USBD_Init(&USBD_Device, &MSC_Desc, 0);                              /* 初始化USB */
+    USBD_RegisterClass(&USBD_Device, USBD_MSC_CLASS);                   /* 添加类 */
+    USBD_MSC_RegisterStorage(&USBD_Device, &USBD_DISK_fops);            /* 为MSC类添加回调函数 */
+    USBD_Start(&USBD_Device);                                           /* 开启USB */
+    delay_ms(1800);
+	
+	  lvgl_demo();                        /* 运行FreeRTOS例程 */
+}
